@@ -11,7 +11,7 @@ import irc
 nickname = "BotyMcBotface"      # The bot's nickname
 
 server = "irc.freenode.net"     # The server to connect to
-channel = "#enfors"             # The channel to join
+channel = "#BotyMcBotface"      # The channel to join
 
 # While we put other variables such as the server to connect to and
 # the channel to join in vars directly in this file, doing the same
@@ -118,5 +118,5 @@ while True:
     #
     # Happy hacking!
     #
-    # https://github.com/enfors
+    # https://github.com/enfors/botymcbotface
     
