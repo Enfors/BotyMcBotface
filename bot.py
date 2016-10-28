@@ -8,10 +8,10 @@
 # system level import.
 import irc
 
-nickname = "BotyMcBotface"      # The bot's nickname
+nickname     = "BotyMcBotface"     # The bot's nickname
 
-server = "irc.freenode.net"     # The server to connect to
-channel = "#BotyMcBotface"      # The channel to join
+server       = "irc.freenode.net"  # The server to connect to
+main_channel = "#BotyMcBotface"    # The channel to join
 
 # While we put other variables such as the server to connect to and
 # the channel to join in vars directly in this file, doing the same
@@ -43,7 +43,7 @@ bot = irc.IRCBot(nickname, password, debug = False)
 
 # Connect to the server. This will also log in, and give the server
 # our nickname and password.
-bot.connect(server, channel)
+bot.connect(server, main_channel)
 
 # Join additional channels:
 bot.join_channel("#bots")
@@ -93,8 +93,10 @@ while True:
         print("Channel message: %s @ %s: %s" % (sender, channel, msg_text))
 
     # If we get a message of type JOIN, that means that the 'sender' joined
-    # the channel specified in 'channel'.
-    if (msg_type == "JOIN" and sender != nickname):
+    # the channel specified in 'channel'. But we only want to do that in
+    # our own main_channel, not in other channels we may have joined.
+    if (msg_type == "JOIN" and channel == main_channel and
+        sender != nickname):
         bot.privmsg(channel, "Hello %s, welcome to %s!" % (sender, channel))
 
         # If the person who joined is called "enfors", then let's make
@@ -104,8 +106,9 @@ while True:
         if (sender == "enfors"):
             bot.make_operator(channel, sender)
 
-    # Let's ask people who leave our channel to come back:
-    if (msg_type == "PART" and sender != nickname):
+    # Let's ask people who leave our main_channel to come back:
+    if (msg_type == "PART" and channel == main_channel and
+        sender != nickname):
         bot.privmsg(sender, "Please come back to %s soon!" % channel)
             
     # That's it!
