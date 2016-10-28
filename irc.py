@@ -15,13 +15,13 @@ class IRCBot:
 
     def connect(self, server, channel):
         '''Connect to the specified IRC server.'''
-        print("Connecting to: " + server)
+        self.debug_print("Connecting to: " + server)
         self.socket.connect((server, 6667))
         self.socket.setblocking(0)
 
         # We want sock_file for readline().
         self.sock_file = self.socket.makefile()
-        print("Connected.")
+        self.debug_print("Connected.")
         self.send("USER %s 0 * :Experimental bot." % self.nickname)
         self.get_line(2)
         self.send("NICK " + self.nickname)
