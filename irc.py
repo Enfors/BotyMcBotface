@@ -37,20 +37,21 @@ class IRCBot:
         self.get_line(2)
 
 
-    def debug_print(self, msg, level):
+    def debug_print(self, text, level):
         """
         Print a debugging message, but only when in debug mode.
         """
         if self.debug_level >= level:
-            print(msg)
+            print("IRC[%d] %s" % (level, text))
 
         
     def send(self, msg):
         """
         Low level function which sends a message to the socket.
         """
+        msg = msg.rstrip()
         self.socket.send(bytearray(msg + "\r\n", "utf-8"))
-        self.debug_print("-> " + msg.rstrip(), 1)
+        self.debug_print("-> " + msg, 1)
 
         
     def privmsg(self, channel, msg):
