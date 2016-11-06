@@ -95,12 +95,8 @@ class IRCBot:
             # here because select timed out (see the timeout var).
             return None
 
-        #try:
-        line = self.sock_file.readline()
-        #except socket.timeout:
-        #    return None
+        line = self.sock_file.readline().strip()
 
-        line = line.rstrip()
         self.debug_print("<- " + line, 1)
 
         if line.startswith("PING "):
@@ -123,7 +119,54 @@ class IRCBot:
         return self.parse_irc_msg(self.get_line(timeout))
 
 
+    def route_msg(self, timeout = 10):
+        """
+        Even higher level function than get_msg(). route_msg() reads a
+        message (if one arrives within the timeout, in seconds), and
+        routes it to the correct "on_*" function. For example, if the
+        message is a private message, it will be sent to the
+        "on_private_msg()" function. These functions, the names of
+        which start with "on_", can be overridden by an application
+        which inherits this class. That application then calls
+        route_msg(), and as a result, its own on_* functions will be
+        called.
+
+        Returns: IRCMsg object if a message was routed within the
+        timeout, otherwise None.
+        """
+
+        msg = self.get_msg(timeout)
+
+        if not msg:
+            return None
+
+        sender   = msg.sender
+        msg_type = msg.msg_type
+        channel  = msg.channel
+        msg_text = msg.msg_text
+
+        if msg_type == "JOIN":
+            self.on_join_msg(msg)
+
+        if msg_type == "PART":
+            self.on_part_msg(msg)
+            
+        elif msg_type == "PRIVMSG" and \
+             channel.lower() == self.nickname.lower():
+            self.on_private_msg(msg)
+            
+        elif msg_type == "PRIVMSG":
+            self.on_channel_msg(msg)
+            
+        else:
+            return None
+        
+        return msg
+        
+
+
     def parse_irc_msg(self, line):
+
         """
         Low level IRC protocol parsing function.
 
@@ -162,6 +205,40 @@ class IRCBot:
             self.debug_print("   MSG_TEXT:  '%s'" % msg_text, 2)
 
         return IRCMsg(sender, msg_type, channel, msg_text)
+
+
+    def on_channel_msg(self, msg):
+        """
+        Called by route_msg() if the message is a channel message.
+        This method is meant to be overridden.
+        """
+        self.debug_print("on_channel_msg(): Unimplemented.", 2)
+
+
+    def on_private_msg(self, msg):
+        """
+        Called by route_msg() if the message is a private message.
+        This method is meant to be overridden.
+        """
+        self.debug_print("on_private_msg(): Unimplemented.", 2)
+
+
+    def on_join_msg(self, msg):
+        """
+        Called by route_msg() if the message is a join message (that
+        is, if someone joins a channel).
+        This method is meant to be overridden.
+        """
+        self.debug_print("on_join_msg(): Unimplemented.", 2)
+
+
+    def on_part_msg(self, msg):
+        """
+        Called by route_msg() if the message is a part message (that
+        is, if someone leaves a channel).
+        This method is meant to be overridden.
+        """
+        self.debug_print("on_part_msg(): Unimplemented.", 2)
 
 
 
