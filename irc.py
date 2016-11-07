@@ -41,8 +41,13 @@ class IRCBot:
         """
         Print a debugging message, but only when in debug mode.
         """
+        if level < 0:
+            level = 0
+        elif level > 5:
+            level = 5
+            
         if self.debug_level >= level:
-            print("IRC[%d] %s" % (level, text))
+            print("IRC[%d] %s%s" % (level, "   " * (level - 1), text))
 
         
     def send(self, msg):
@@ -148,7 +153,7 @@ class IRCBot:
         if msg_type == "JOIN":
             self.on_join_msg(msg)
 
-        if msg_type == "PART":
+        elif msg_type == "PART":
             self.on_part_msg(msg)
             
         elif msg_type == "PRIVMSG" and \
@@ -193,16 +198,16 @@ class IRCBot:
             msg_text  = match.group(5)
             
         if sender:
-            self.debug_print("   SENDER:    '%s'" % sender,   2)
+            self.debug_print("SENDER:    '%s'" % sender,   2)
 
         if msg_type:
-            self.debug_print("   MSG_TYPE:  '%s'" % msg_type, 2)
+            self.debug_print("MSG_TYPE:  '%s'" % msg_type, 2)
             
         if channel:
-            self.debug_print("   CHANNEL:   '%s'" % channel,  2)
+            self.debug_print("CHANNEL:   '%s'" % channel,  2)
 
         if msg_text:
-            self.debug_print("   MSG_TEXT:  '%s'" % msg_text, 2)
+            self.debug_print("MSG_TEXT:  '%s'" % msg_text, 2)
 
         return IRCMsg(sender, msg_type, channel, msg_text)
 
