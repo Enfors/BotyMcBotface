@@ -2,6 +2,7 @@
 # -*- encoding: utf-8 -*-
 
 import socket, select, re
+import time
 
 class IRCBot:
     """
@@ -19,8 +20,21 @@ class IRCBot:
         """
         Connect to the specified IRC server.
         """
+        connected = False
+        skip_seconds = 10
         self.debug_print("Connecting to: " + server, 1)
-        self.socket.connect((server, 6667))
+
+        while not connected:
+            try:
+                self.socket.connect((server, 6667))
+                connected = True
+            except:
+                self.debug_print("Connection failed. Retrying in %d seconds." % skip_seconds, 1)
+                time.sleep(skip_seconds)
+                skip_seconds *= 2
+                if skip_seconds > 600:
+                    skip_seconds = 600
+            
         self.socket.setblocking(0)
 
         # We want sock_file for readline().
