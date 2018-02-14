@@ -10,9 +10,9 @@ import os
 # system level import.
 import irc
 
-nickname     = "BotyMcBotface"     # The bot's nickname
+nickname = "BotyMcBotface"   # The bot's nickname
+server = "irc.freenode.net"  # The server to connect to
 
-server       = "irc.freenode.net"  # The server to connect to
 main_channel = "#BotyMcBotface"    # The channel to join
 
 # While we put other variables such as the server to connect to and
@@ -21,9 +21,10 @@ main_channel = "#BotyMcBotface"    # The channel to join
 # is publicly available on Github. So, read it from a local file
 # instead (which never ends up on Github).
 
+
 def load_var(var_name):
     var = ""
-    
+
     try:
         with open(os.path.join("private", var_name), "r") as f:
             var = f.readline().strip()
@@ -34,6 +35,7 @@ def load_var(var_name):
 
     return var
 
+
 nickname = load_var("nickname")
 password = load_var("password")
 
@@ -42,7 +44,8 @@ password = load_var("password")
 # on what is happening with the protocol (the higher we set it, the
 # more info we get). It's a useful way to learn how the IRC protocol
 # works.
-bot = irc.IRCBot(nickname, password, debug_level = 1)
+
+bot = irc.IRCBot(nickname, password, debug_level=1)
 
 # Connect to the server. This will also log in, and give the server
 # our nickname and password.
@@ -84,7 +87,7 @@ while True:
     #
     #   1. If "channel" is the same as the bot's nickname, then it is
     #      an actual private message.
-    # 
+    #
     #   2. Otherwise, it's an ordinary message on the channel
     #      specified in "channel".
 
@@ -95,7 +98,7 @@ while True:
 
         # Since we're calling privmsg() with the sender as the recipient
         # (the first argument), what we send will also be an actual
-        # private message. 
+        # private message.
         bot.privmsg(msg.sender, "Hello, I'm a bot skeleton. I can't really "
                     "do anything, I exist merely as an example of how "
                     "to write an IRC bot in Python that others can "
@@ -112,7 +115,7 @@ while True:
     # the channel specified in 'channel'. But we only want to do that in
     # our own main_channel, not in other channels we may have joined.
     if (msg.msg_type == "JOIN" and msg.channel == main_channel and
-        msg.sender != nickname):
+            msg.sender != nickname):
         bot.privmsg(msg.channel, "Hello %s, welcome to %s!" %
                     (msg.sender, msg.channel))
 
@@ -125,10 +128,10 @@ while True:
 
     # Let's ask people who leave our main_channel to come back:
     if (msg.msg_type == "PART" and msg.channel == main_channel and
-        msg.sender != nickname):
+            msg.sender != nickname):
         bot.privmsg(msg.sender, "Please come back to %s soon!" %
                     msg.channel)
-            
+
     # That's it!
     #
     # That wasn't very difficult, was it? Feel free to extend this simple
@@ -140,4 +143,3 @@ while True:
     # Happy hacking!
     #
     # https://github.com/enfors/botymcbotface
-    
