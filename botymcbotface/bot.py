@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- encoding: utf-8 -*-
 
+import os
+
 # INITIAL SETUP
 # =============
 
@@ -23,11 +25,11 @@ def load_var(var_name):
     var = ""
     
     try:
-        with open(var_name, "r") as f:
+        with open(os.path.join("private", var_name), "r") as f:
             var = f.readline().strip()
     except FileNotFoundError:
         print("You need to put your bot's %s in a file called %s "
-              "in this directory." % (var_name, var_name))
+              "in directory called private." % (var_name, var_name))
         raise SystemExit
 
     return var

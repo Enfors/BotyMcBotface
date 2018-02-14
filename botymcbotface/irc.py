@@ -34,7 +34,7 @@ class IRCBot:
                 skip_seconds *= 2
                 if skip_seconds > 600:
                     skip_seconds = 600
-            
+
         self.socket.setblocking(0)
 
         # We want sock_file for readline().
@@ -199,7 +199,7 @@ class IRCBot:
 
         if not line:
             return None
-        # <L3viathan> enfors: ":enfors!foo".split("!")[0][1:]
+
         match = re.search("^:([^!]*)!" \
                           "[^ ]* ([^ ]+) " \
                           "([^ ]+) ?" \

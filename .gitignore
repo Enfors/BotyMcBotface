@@ -1,5 +1,6 @@
 __pycache__
 *.pyc
-password
-nickname
+private
+dist
+*egg-info
 
