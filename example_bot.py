@@ -3,7 +3,7 @@
 
 # INTRODUCTION
 # ============
-# 
+#
 
 import os
 
@@ -12,7 +12,7 @@ import os
 
 # The "irc" import is the irc.py file in this directory, not a
 # system level import.
-import irc
+import botymcbotface.irc
 
 nickname = "BotyMcBotface"   # The bot's nickname
 server = "irc.freenode.net"  # The server to connect to
@@ -49,7 +49,7 @@ password = load_var("password")
 # more info we get). It's a useful way to learn how the IRC protocol
 # works.
 
-bot = irc.IRCBot(nickname, password, debug_level=1)
+bot = botymcbotface.irc.IRCBot(nickname, password, debug_level=1)
 
 # Connect to the server. This will also log in, and give the server
 # our nickname and password. It will also join our main channel,
@@ -140,6 +140,7 @@ while True:
         if (msg.sender.lower() == "enfors"):
             bot.make_operator(msg.channel, msg.sender)
 
+    # Messages of type "PART" means that someone left a channel.
     # Let's ask people who leave our main_channel to come back:
     if (msg.msg_type == "PART" and msg.channel == main_channel and
             msg.sender != nickname):
