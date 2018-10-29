@@ -3,8 +3,8 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="botymcbotface",
-    version="0.0.0",
+    name="BotyMcBotface",
+    version="1.0.0",
     author="Christer Enfors",
     author_email="christer.enfors@gmail.com",
     url="https://github.com/enfors/BotyMcBotface",
