@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 # -*- encoding: utf-8 -*-
 
+# INTRODUCTION
+# ============
+# 
+
 import os
 
 # INITIAL SETUP
@@ -48,7 +52,8 @@ password = load_var("password")
 bot = irc.IRCBot(nickname, password, debug_level=1)
 
 # Connect to the server. This will also log in, and give the server
-# our nickname and password.
+# our nickname and password. It will also join our main channel,
+# which is stored in the main_channel variable.
 bot.connect(server, main_channel)
 
 # Join additional channels:
@@ -75,12 +80,15 @@ while True:
     # If we wanted to do something in the background every 5 (or
     # every X) seconds, this is where we'd do it, right before the
     # continue statement.
+    #
+    # Now we check if we got a message from get_msg, or if it simply
+    # timed out:
     if not msg:
         continue
 
-    # Now, we (possibly - unless get_msg() timed out) have a sender, a
-    # msg_type, a channel and a msg_text. We can check these to decide
-    # what we want to do (if anything) with this message.
+    # Now, we have a sender, a msg_type, a channel and a msg_text. We
+    # can check these to decide what we want to do (if anything) with
+    # this message.
 
     # The IRC protocol is weird. The message type "PRIVMSG" can mean
     # two different things, depending on what "channel" is set to.
@@ -96,6 +104,8 @@ while True:
         print("Private message: %s->%s: %s" % (msg.sender, msg.channel,
                                                msg.msg_text))
 
+        # We've received a private message! Let's respond.
+        #
         # Since we're calling privmsg() with the sender as the recipient
         # (the first argument), what we send will also be an actual
         # private message.
@@ -111,9 +121,13 @@ while True:
         print("Channel message: %s @ %s: %s" % (msg.sender, msg.channel,
                                                 msg.msg_text))
 
-    # If we get a message of type JOIN, that means that the 'sender' joined
-    # the channel specified in 'channel'. But we only want to do that in
-    # our own main_channel, not in other channels we may have joined.
+    # If we get a message of type JOIN, that means that the 'sender'
+    # joined the channel specified in 'channel'. So let's send this
+    # user a greeting! But we only want to do that in our own
+    # main_channel, not in other channels we may have joined. Also, by
+    # checking to make sure that msg.sender is not equal to our own
+    # nickname, the bot won't accidentally welcome itself to the
+    # channel when it joins.
     if (msg.msg_type == "JOIN" and msg.channel == main_channel and
             msg.sender != nickname):
         bot.privmsg(msg.channel, "Hello %s, welcome to %s!" %
