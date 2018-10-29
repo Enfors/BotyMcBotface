@@ -1,23 +1,14 @@
 #!/usr/bin/env python3
 # -*- encoding: utf-8 -*-
 
-# INTRODUCTION
-# ============
-#
-
 import os
-
-# INITIAL SETUP
-# =============
-
-# The "irc" import is the irc.py file in this directory, not a
-# system level import.
 import botymcbotface.irc
 
-nickname = "BotyMcBotface"   # The bot's nickname
-server = "irc.freenode.net"  # The server to connect to
+# The server to connect to.
+server = "irc.freenode.net"
 
-main_channel = "#BotyMcBotface"    # The channel to join
+# The main channel to join.
+main_channel = "#BotyMcBotface"
 
 # While we put other variables such as the server to connect to and
 # the channel to join in vars directly in this file, doing the same
@@ -40,14 +31,16 @@ def load_var(var_name):
     return var
 
 
+# Use the above function, to load our nickname and password from
+# files in the "private/" directory.
 nickname = load_var("nickname")
 password = load_var("password")
 
-# Create the bot object (which is defined in the file irc.py). If we
-# set the debug_level to a value above zero, we get more information
-# on what is happening with the protocol (the higher we set it, the
-# more info we get). It's a useful way to learn how the IRC protocol
-# works.
+# Create the bot object (which is defined in the file
+# botymcbotface/irc.py). If we set the debug_level to a value above
+# zero, we get more information on what is happening with the protocol
+# (the higher we set it, the more info we get). It's a useful way to
+# learn how the IRC protocol works.
 
 bot = botymcbotface.irc.IRCBot(nickname, password, debug_level=1)
 
