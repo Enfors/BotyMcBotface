@@ -42,7 +42,7 @@ password = load_var("password")
 # (the higher we set it, the more info we get). It's a useful way to
 # learn how the IRC protocol works.
 
-bot = botymcbotface.irc.IRCBot(nickname, password, debug_level=1)
+bot = botymcbotface.irc.IRCBot(nickname, password, debug_level=0)
 
 # Connect to the server. This will also log in, and give the server
 # our nickname and password. It will also join our main channel,
