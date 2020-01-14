@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- encoding: utf-8 -*-
 
+import asyncio
 import re
 import select
 import socket
@@ -16,11 +17,11 @@ class IRCBot:
         self.password = password
         self.debug_level = debug_level
 
-        # todo: prob not needed
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # done: prob not needed
+        # self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    # todo: async
-    def connect(self, server, channel):
+    # done: async
+    async def connect(self, server, channel):
         """
         Connect to the specified IRC server.
         """
@@ -30,33 +31,35 @@ class IRCBot:
 
         while not connected:
             try:
-                # todo: open_connection
-                self.socket.connect((server, 6667))
+                # done: open_connection
+                # self.socket.connect((server, 6667))
+                self.reader, self.writer = await asyncio.open_connection(server,
+                                                                         6667)
                 connected = True
             except:
-                self.debug_print("Connection failed. Retrying in %d "
-                                 "seconds." % skip_seconds, 1)
-                time.sleep(skip_seconds)
+                self.debug_print(f"Connection failed. Retrying in "
+                                 f"{skip_seconds} seconds.")
+                await asyncio.sleep(skip_seconds)
                 skip_seconds *= 2
                 if skip_seconds > 600:
                     skip_seconds = 600
 
-        # todo: remove
-        self.socket.setblocking(0)
+        # done: remove
+        # self.socket.setblocking(0)
 
-        # todo: skip sock_file, await send, await get_line
+        # done: skip sock_file, await send, await get_line
         # We want sock_file for readline().
-        self.sock_file = self.socket.makefile()
+        # self.sock_file = self.socket.makefile()
         self.debug_print("Connected.", 1)
-        self.send("USER %s 0 * :Experimental bot." % self.nickname)
-        self.get_line(2)
-        self.send("NICK " + self.nickname)
-        self.get_line(2)
-        self.send("PRIVMSG NickServ :IDENTIFY %s %s" % (self.nickname,
-                                                        self.password))
-        self.get_line(2)
-        self.send("JOIN " + channel)
-        self.get_line(2)
+        await self.send(f"USER {self.nickname} 0 * :Experimental bot.")
+        await self.get_line(2)
+        await self.send(f"NICK {self.nickname}")
+        await self.get_line(2)
+        await self.send(f"PRIVMSG NickServ :IDENTIFY {self.nickname} "
+                        f"{self.password}")
+        await self.get_line(2)
+        await self.send(f"JOIN {channel}")
+        await self.get_line(2)
 
     def debug_print(self, text, level):
         """
@@ -70,59 +73,62 @@ class IRCBot:
         if self.debug_level >= level:
             print("IRC[%d] %s%s" % (level, "   " * (level - 1), text))
 
-    # todo: async
-    def send(self, msg):
+    # done: async
+    async def send(self, msg):
         """
         Low level function which sends a message to the socket.
         """
-        msg = msg.rstrip()
-        # todo: writer.write
-        self.socket.send(bytearray(msg + "\r\n", "utf-8"))
-        self.debug_print("-> " + msg, 1)
+        msg = msg.rstrip() + "\r\n"
+        # done: writer.write
+        #self.socket.send(bytearray(msg + "\r\n", "utf-8"))
+        self.writer.write(msg.encode())
+        self.debug_print("-> " + msg.rstrip(), 1)
 
-    # todo: await
-    def privmsg(self, channel, msg):
+    # done: async
+    async def privmsg(self, channel, msg):
         """
         Send a PRIVMSG to a channel or user.
         """
-        # todo: await
-        self.send("PRIVMSG " + channel + " :" + msg)
+        # done: await
+        await self.send(f"PRIVMSG {channel}: {msg}")
 
-    def make_operator(self, channel, user):
+    async def make_operator(self, channel, user):
         """
         Make user an operator on channel. Only works if the bot is
         already an operator.
         """
-        # todo: await
-        self.send("MODE %s +o %s" % (channel, user))
+        # done: await
+        await self.send("MODE %s +o %s" % (channel, user))
 
-    def join_channel(self, channel):
+    async def join_channel(self, channel):
         """
         Have the bot join a channel.
         """
-        # todo: await
-        self.send("JOIN " + channel)
+        # done: await
+        await self.send("JOIN " + channel)
 
-    def get_line(self, timeout=10):
+    async def get_line(self, timeout=10):
         """
         Low level function which reads one line from the server.
         If the timeout is reached, None is returned instead. get_msg() is a
         higher level function which returns a parsed output.
         """
-        inputs = [self.socket]
-        outputs = []
+        # inputs = [self.socket]
+        # outputs = []
 
-        readable, writable, exceptional = select.select(inputs,
-                                                        outputs,
-                                                        inputs,
-                                                        timeout)
+        # readable, writable, exceptional = select.select(inputs,
+        #                                                 outputs,
+        #                                                 inputs,
+        #                                                 timeout)
 
-        if self.socket not in readable:
-            # Our socket never became readable, which means we got
-            # here because select timed out (see the timeout var).
-            return None
+        # if self.socket not in readable:
+        #     # Our socket never became readable, which means we got
+        #     # here because select timed out (see the timeout var).
+        #     return None
 
-        line = self.sock_file.readline().strip()
+        # line = self.sock_file.readline().strip()
+        line = await self.reader.readline()
+        line = line.decode().strip()
 
         self.debug_print("<- " + line, 1)
 
@@ -130,19 +136,22 @@ class IRCBot:
             # The server has sent us a PING to see if we're still
             # alive and connected. We must respond with a PONG, or
             # the server will disconnect us.
-            self.send("PONG " + line.split()[1] + "\r\n")
+            await self.send("PONG " + line.split()[1] + "\r\n")
             return None
 
         return line
 
-    def get_msg(self, timeout=10):
+    async def get_msg(self, timeout=10):
         """
         Higher level function than get_line(). get_msg() returns a
         IRCMsg object.
 
         Returns: IRCMsg object
         """
-        return self.parse_irc_msg(self.get_line(timeout))
+
+        line = await self.get_line(timeout)
+        
+        return self.parse_irc_msg(line)
 
     def route_msg(self, timeout=10):
         """
