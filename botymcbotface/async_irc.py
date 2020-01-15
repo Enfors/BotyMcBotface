@@ -67,8 +67,9 @@ class IRCBot:
         """
         msg = msg.rstrip() + "\r\n"
 
-        self.writer.write(msg.encode())
+        # If the write buffer is full, we have to wait before we can write more.
         await self.writer.drain()
+        self.writer.write(msg.encode())
         self.debug_print(f"-> {msg.rstrip()!r}", 1)
 
     async def privmsg(self, channel, msg):
