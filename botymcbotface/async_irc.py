@@ -17,10 +17,6 @@ class IRCBot:
         self.password = password
         self.debug_level = debug_level
 
-        # done: prob not needed
-        # self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    # done: async
     async def connect(self, server, channel):
         """
         Connect to the specified IRC server.
@@ -31,8 +27,6 @@ class IRCBot:
 
         while not connected:
             try:
-                # done: open_connection
-                # self.socket.connect((server, 6667))
                 self.reader, self.writer = await asyncio.open_connection(server,
                                                                          6667)
                 connected = True
@@ -44,12 +38,6 @@ class IRCBot:
                 if skip_seconds > 600:
                     skip_seconds = 600
 
-        # done: remove
-        # self.socket.setblocking(0)
-
-        # done: skip sock_file, await send, await get_line
-        # We want sock_file for readline().
-        # self.sock_file = self.socket.makefile()
         self.debug_print("Connected.", 1)
         await self.send(f"USER {self.nickname} 0 * :Experimental bot.")
         await self.get_line(2)
@@ -73,23 +61,19 @@ class IRCBot:
         if self.debug_level >= level:
             print("IRC[%d] %s%s" % (level, "   " * (level - 1), text))
 
-    # done: async
     async def send(self, msg):
         """
         Low level function which sends a message to the socket.
         """
         msg = msg.rstrip() + "\r\n"
-        # done: writer.write
-        #self.socket.send(bytearray(msg + "\r\n", "utf-8"))
+
         self.writer.write(msg.encode())
         self.debug_print(f"-> {msg.rstrip()!r}", 1)
 
-    # done: async
     async def privmsg(self, channel, msg):
         """
         Send a PRIVMSG to a channel or user.
         """
-        # done: await
         await self.send(f"PRIVMSG {channel} :{msg}")
 
     async def make_operator(self, channel, user):
@@ -97,14 +81,12 @@ class IRCBot:
         Make user an operator on channel. Only works if the bot is
         already an operator.
         """
-        # done: await
         await self.send("MODE %s +o %s" % (channel, user))
 
     async def join_channel(self, channel):
         """
         Have the bot join a channel.
         """
-        # done: await
         await self.send("JOIN " + channel)
 
     async def get_line(self, timeout=10):
@@ -113,20 +95,6 @@ class IRCBot:
         If the timeout is reached, None is returned instead. get_msg() is a
         higher level function which returns a parsed output.
         """
-        # inputs = [self.socket]
-        # outputs = []
-
-        # readable, writable, exceptional = select.select(inputs,
-        #                                                 outputs,
-        #                                                 inputs,
-        #                                                 timeout)
-
-        # if self.socket not in readable:
-        #     # Our socket never became readable, which means we got
-        #     # here because select timed out (see the timeout var).
-        #     return None
-
-        # line = self.sock_file.readline().strip()
         line = await self.reader.readline()
         line = line.decode().strip()
 
