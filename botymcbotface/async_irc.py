@@ -95,7 +95,14 @@ class IRCBot:
         If the timeout is reached, None is returned instead. get_msg() is a
         higher level function which returns a parsed output.
         """
-        line = await self.reader.readline()
+        #line = await self.reader.readline()
+        future = self.reader.readline()
+
+        try:
+            line = await asyncio.wait_for(future, timeout=timeout)
+        except asyncio.TimeoutError:
+            return None
+            
         line = line.decode().strip()
 
         self.debug_print(f"<- {line!r}", 1)

@@ -82,7 +82,6 @@ async def main():
         #
         # Now we check if we got a message from get_msg, or if it simply
         # timed out:
-        print("Timeout")
         if not msg:
             continue
     
