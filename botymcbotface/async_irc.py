@@ -82,7 +82,7 @@ class IRCBot:
         # done: writer.write
         #self.socket.send(bytearray(msg + "\r\n", "utf-8"))
         self.writer.write(msg.encode())
-        self.debug_print("-> " + msg.rstrip(), 1)
+        self.debug_print(f"-> {msg.rstrip()!r}", 1)
 
     # done: async
     async def privmsg(self, channel, msg):
@@ -90,7 +90,7 @@ class IRCBot:
         Send a PRIVMSG to a channel or user.
         """
         # done: await
-        await self.send(f"PRIVMSG {channel}: {msg}")
+        await self.send(f"PRIVMSG {channel} :{msg}")
 
     async def make_operator(self, channel, user):
         """
@@ -130,7 +130,7 @@ class IRCBot:
         line = await self.reader.readline()
         line = line.decode().strip()
 
-        self.debug_print("<- " + line, 1)
+        self.debug_print(f"<- {line!r}", 1)
 
         if line.startswith("PING "):
             # The server has sent us a PING to see if we're still
@@ -138,7 +138,7 @@ class IRCBot:
             # the server will disconnect us.
             await self.send("PONG " + line.split()[1] + "\r\n")
             return None
-
+            
         return line
 
     async def get_msg(self, timeout=10):
@@ -150,8 +150,18 @@ class IRCBot:
         """
 
         line = await self.get_line(timeout)
+
+        irc_msg = self.parse_irc_msg(line)
+
+        if not irc_msg:
+            return None
         
-        return self.parse_irc_msg(line)
+        if (irc_msg.channel == self.nickname and
+            irc_msg.msg_text == "\x01VERSION\x01"):
+            await self.privmsg(irc_msg.sender, "1.0.0")
+            return None
+        
+        return irc_msg
 
     def route_msg(self, timeout=10):
         """
@@ -225,16 +235,16 @@ class IRCBot:
             msg_text = match.group(5)
 
         if sender:
-            self.debug_print("SENDER:    '%s'" % sender,   2)
+            self.debug_print(f"SENDER:    {sender!r}",   2)
 
         if msg_type:
-            self.debug_print("MSG_TYPE:  '%s'" % msg_type, 2)
+            self.debug_print(f"MSG_TYPE:  {msg_type!r}", 2)
 
         if channel:
-            self.debug_print("CHANNEL:   '%s'" % channel,  2)
+            self.debug_print(f"CHANNEL:   {channel!r}",  2)
 
         if msg_text:
-            self.debug_print("MSG_TEXT:  '%s'" % msg_text, 2)
+            self.debug_print(f"MSG_TEXT:  {msg_text!r}", 2)
 
         return IRCMsg(sender, msg_type, channel, msg_text)
 

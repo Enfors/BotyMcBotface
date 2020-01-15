@@ -48,7 +48,7 @@ async def main():
     # (the higher we set it, the more info we get). It's a useful way to
     # learn how the IRC protocol works.
 
-    bot = botymcbotface.async_irc.IRCBot(nickname, password, debug_level=1)
+    bot = botymcbotface.async_irc.IRCBot(nickname, password, debug_level=2)
     
     # Connect to the server. This will also log in, and give the server
     # our nickname and password. It will also join our main channel,
