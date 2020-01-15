@@ -68,6 +68,7 @@ class IRCBot:
         msg = msg.rstrip() + "\r\n"
 
         self.writer.write(msg.encode())
+        await self.writer.drain()
         self.debug_print(f"-> {msg.rstrip()!r}", 1)
 
     async def privmsg(self, channel, msg):
