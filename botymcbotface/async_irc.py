@@ -12,10 +12,11 @@ class IRCBot:
     """
     A simple IRC bot skeleton.
     """
-    def __init__(self, nickname, password, debug_level=0):
+    def __init__(self, nickname, password, debug_level=0, version="0.0.0"):
         self.nickname = nickname
         self.password = password
         self.debug_level = debug_level
+        self.version = version
 
     async def connect(self, server, channel):
         """
@@ -133,7 +134,7 @@ class IRCBot:
         
         if (irc_msg.channel == self.nickname and
             irc_msg.msg_text == "\x01VERSION\x01"):
-            await self.privmsg(irc_msg.sender, "1.0.0")
+            await self.privmsg(irc_msg.sender, self.version)
             return None
         
         return irc_msg
