@@ -33,7 +33,7 @@ class IRCBot:
                 connected = True
             except:
                 self.debug_print(f"Connection failed. Retrying in "
-                                 f"{skip_seconds} seconds.")
+                                 f"{skip_seconds} seconds.", 1)
                 await asyncio.sleep(skip_seconds)
                 skip_seconds *= 2
                 if skip_seconds > 600:
@@ -105,7 +105,7 @@ class IRCBot:
             line = await asyncio.wait_for(future, timeout=timeout)
         except asyncio.TimeoutError:
             return None
-            
+
         line = line.decode().strip()
 
         self.debug_print(f"<- {line!r}", 1)
@@ -116,7 +116,7 @@ class IRCBot:
             # the server will disconnect us.
             await self.send("PONG " + line.split()[1] + "\r\n")
             return None
-            
+
         return line
 
     async def get_msg(self, timeout=10):
@@ -133,12 +133,12 @@ class IRCBot:
 
         if not irc_msg:
             return None
-        
+
         if (irc_msg.channel == self.nickname and
             irc_msg.msg_text == "\x01VERSION\x01"):
             await self.privmsg(irc_msg.sender, self.version)
             return None
-        
+
         return irc_msg
 
     def route_msg(self, timeout=10):
